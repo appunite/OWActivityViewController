@@ -103,9 +103,14 @@
 - (void)presentFromRootViewController
 {
     UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-    [rootViewController addChildViewController:self];
-    [rootViewController.view addSubview:self.view];
-    [self didMoveToParentViewController:rootViewController];
+    [self presentFromViewController:rootViewController];
+}
+
+- (void)presentFromViewController:(UIViewController *)controller
+{
+    [controller addChildViewController:self];
+    [controller.view addSubview:self.view];
+    [self didMoveToParentViewController:controller];
 }
 
 - (void)didMoveToParentViewController:(UIViewController *)parent

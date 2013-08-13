@@ -39,5 +39,6 @@
 
 - (id)initWithViewController:(UIViewController *)viewController activities:(NSArray *)activities;
 - (void)presentFromRootViewController;
+- (void)presentFromViewController:(UIViewController *)controller;
 
 @end
