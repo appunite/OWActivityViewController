@@ -34,6 +34,9 @@ typedef void (^OWActivityActionBlock)(OWActivity *activity, OWActivityViewContro
 
 @property (strong, readonly, nonatomic) NSString *title;
 @property (strong, readonly, nonatomic) UIImage *image;
+@property (strong, nonatomic) UIImage *backgroundNormal;
+@property (strong, nonatomic) UIImage *backgroundActive;
+@property (strong, nonatomic) UIImage *backgroundOff;
 @property (copy, nonatomic) OWActivityActionBlock actionBlock;
 @property (strong, nonatomic) OWActivityViewController *activityViewController;
 @property (strong, nonatomic) NSDictionary *userInfo;

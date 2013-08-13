@@ -106,6 +106,15 @@
     button.tag = index;
     [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [button setBackgroundImage:activity.image forState:UIControlStateNormal];
+    if (activity.backgroundNormal) {
+        [button setBackgroundImage:activity.backgroundNormal forState:UIControlStateNormal];
+    }
+    if (activity.backgroundActive) {
+        [button setBackgroundImage:activity.backgroundActive forState:UIControlStateHighlighted];
+    }
+    if (activity.backgroundOff) {
+        [button setBackgroundImage:activity.backgroundOff forState:UIControlStateDisabled];
+    }
     button.accessibilityLabel = activity.title;
     [view addSubview:button];
     
