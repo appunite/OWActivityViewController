@@ -105,7 +105,7 @@
     button.frame = CGRectMake(10, 0, 59, 59);
     button.tag = index;
     [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [button setBackgroundImage:activity.image forState:UIControlStateNormal];
+    [button setImage:activity.image forState:UIControlStateNormal];
     if (activity.backgroundNormal) {
         [button setBackgroundImage:activity.backgroundNormal forState:UIControlStateNormal];
     }
