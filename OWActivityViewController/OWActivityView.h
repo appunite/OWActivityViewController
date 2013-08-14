@@ -28,6 +28,7 @@
 
 @protocol OWActivityViewDelegate <NSObject>
 
+@optional
 - (void)didCancelActivityView;
 - (void)willPerformActivity:(OWActivity *)activity;
 - (void)didPerformActivity:(OWActivity *)activity;

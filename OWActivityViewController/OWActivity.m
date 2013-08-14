@@ -25,17 +25,40 @@
 
 #import "OWActivity.h"
 
+#import "OWActivityViewController.h"
+
 @implementation OWActivity
 
 - (id)initWithTitle:(NSString *)title image:(UIImage *)image actionBlock:(OWActivityActionBlock)actionBlock
+{
+    self = [self initWithTitle:title image:image actionBlock:actionBlock completionBlock:nil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (id)initWithTitle:(NSString *)title image:(UIImage *)image actionBlock:(OWActivityActionBlock)actionBlock completionBlock:(OWActivityFinishedBlock)finishedBlock
 {
     self = [super init];
     if (self) {
         _title = title;
         _image = image;
         _actionBlock = [actionBlock copy];
+        if (finishedBlock) {
+            _finishedBlock = [finishedBlock copy];
+        }
     }
     return self;
+}
+
+- (void)activityDidFinish:(BOOL)finish {
+    if ([self.activityViewController.activityView.delegate respondsToSelector:@selector(didPerformActivity:)]) {
+        [self.activityViewController.activityView.delegate didPerformActivity:self];
+    }
+    if (_finishedBlock) {
+        _finishedBlock();
+    }
 }
 
 @end
