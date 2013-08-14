@@ -153,6 +153,9 @@
 - (void)cancelButtonPressed
 {
     [_activityViewController dismissViewControllerAnimated:YES completion:nil];
+    if ([_delegate respondsToSelector:@selector(didCancelActivityView)]) {
+        [_delegate didCancelActivityView];
+    }
 }
 
 - (void)buttonPressed:(UIButton *)button
@@ -160,7 +163,13 @@
     OWActivity *activity = [_activities objectAtIndex:button.tag];
     activity.activityViewController = _activityViewController;
     if (activity.actionBlock) {
+        if ([_delegate respondsToSelector:@selector(willPerformActivity:)]) {
+            [_delegate willPerformActivity:activity];
+        }
         activity.actionBlock(activity, _activityViewController);
+        if ([_delegate respondsToSelector:@selector(didPerformActivity:)]) {
+            [_delegate didPerformActivity:activity];
+        }
     }
 }
 

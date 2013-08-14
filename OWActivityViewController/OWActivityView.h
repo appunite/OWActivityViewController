@@ -26,6 +26,14 @@
 #import <UIKit/UIKit.h>
 #import "OWActivity.h"
 
+@protocol OWActivityViewDelegate <NSObject>
+
+- (void)didCancelActivityView;
+- (void)willPerformActivity:(OWActivity *)activity;
+- (void)didPerformActivity:(OWActivity *)activity;
+
+@end
+
 @interface OWActivityView : UIView <UIScrollViewDelegate> {
     UIPageControl *_pageControl;
 }
@@ -35,6 +43,7 @@
 @property (strong, nonatomic) NSArray *activities;
 @property (weak, nonatomic) OWActivityViewController *activityViewController;
 @property (strong, nonatomic) UIButton *cancelButton;
+@property (weak, nonatomic) id<OWActivityViewDelegate> delegate;
 
 - (id)initWithFrame:(CGRect)frame activities:(NSArray *)activities;
 
