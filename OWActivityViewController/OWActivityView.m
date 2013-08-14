@@ -164,11 +164,13 @@
     activity.activityViewController = _activityViewController;
     
     if (activity.actionBlock) {
-        [self.activityViewController dismissViewControllerAnimated:YES completion:nil];
-        if ([_delegate respondsToSelector:@selector(willPerformActivity:)]) {
-            [_delegate willPerformActivity:activity];
-        }
-        activity.actionBlock(activity, _activityViewController);
+        [self.activityViewController dismissViewControllerAnimated:YES completion:^{
+            if ([_delegate respondsToSelector:@selector(willPerformActivity:)]) {
+                [_delegate willPerformActivity:activity];
+            }
+            activity.actionBlock(activity, _activityViewController);
+        }];
+        
     }
 }
 

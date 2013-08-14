@@ -53,11 +53,17 @@
 }
 
 - (void)activityDidFinish:(BOOL)finish {
-    if ([self.activityViewController.activityView.delegate respondsToSelector:@selector(didPerformActivity:)]) {
-        [self.activityViewController.activityView.delegate didPerformActivity:self];
-    }
     if (_finishedBlock) {
         _finishedBlock();
+    }
+    else {
+        [self defaultDidFinish];
+    }
+}
+
+- (void)defaultDidFinish {
+    if ([self.activityViewController.activityView.delegate respondsToSelector:@selector(didPerformActivity:)]) {
+        [self.activityViewController.activityView.delegate didPerformActivity:self];
     }
 }
 

@@ -46,5 +46,6 @@ typedef void (^OWActivityActionBlock)(OWActivity *activity, OWActivityViewContro
 - (id)initWithTitle:(NSString *)title image:(UIImage *)image actionBlock:(OWActivityActionBlock)actionBlock;
 - (id)initWithTitle:(NSString *)title image:(UIImage *)image actionBlock:(OWActivityActionBlock)actionBlock completionBlock:(OWActivityFinishedBlock)finishedBlock;
 - (void)activityDidFinish:(BOOL)finish;
+- (void)defaultDidFinish;
 
 @end
