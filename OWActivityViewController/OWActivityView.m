@@ -165,10 +165,25 @@
     
     if (activity.actionBlock) {
         [self.activityViewController dismissViewControllerAnimated:YES completion:^{
-            if ([_delegate respondsToSelector:@selector(willPerformActivity:)]) {
-                [_delegate willPerformActivity:activity];
+            BOOL canPerform = NO;
+            if ([_delegate respondsToSelector:@selector(shouldStartActivity:)]) {
+                // ask if request is still valid
+                BOOL shouldStartActivity = [_delegate shouldStartActivity:activity];
+                if (shouldStartActivity) {
+                    canPerform = YES;
+                } else {
+                    [self cancelButtonPressed];
+                }
+            } else {
+                canPerform = YES;
             }
-            activity.actionBlock(activity, _activityViewController);
+            if (canPerform) {
+                // prepare to run
+                if ([_delegate respondsToSelector:@selector(willPerformActivity:)]) {
+                    [_delegate willPerformActivity:activity];
+                }
+                activity.actionBlock(activity, _activityViewController);
+            }
         }];
         
     }

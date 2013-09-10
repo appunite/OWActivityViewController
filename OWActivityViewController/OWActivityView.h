@@ -30,6 +30,7 @@
 
 @optional
 - (void)didCancelActivityView;
+- (BOOL)shouldStartActivity:(OWActivity *)activity;
 - (void)willPerformActivity:(OWActivity *)activity;
 - (void)didPerformActivity:(OWActivity *)activity;
 
