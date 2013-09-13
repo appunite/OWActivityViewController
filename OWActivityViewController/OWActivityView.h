@@ -40,7 +40,7 @@
     UIPageControl *_pageControl;
 }
 
-@property (strong, nonatomic) UIImageView *backgroundImageView;
+@property (strong, nonatomic) UIView *backgroundView;
 @property (strong, nonatomic) UIScrollView *scrollView;
 @property (strong, nonatomic) NSArray *activities;
 @property (weak, nonatomic) OWActivityViewController *activityViewController;

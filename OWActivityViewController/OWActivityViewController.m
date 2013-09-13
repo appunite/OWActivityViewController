@@ -63,15 +63,14 @@
         
         _activities = activities;
         _activityView = [[OWActivityView alloc] initWithFrame:CGRectMake(0,
-                                                                         UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ?
-                                                                         [UIScreen mainScreen].bounds.size.height : 0,
-                                                                         self.view.frame.size.width, self.height)
+                                                                         0,
+                                                                         self.view.frame.size.width, CGRectGetHeight(viewController.view.bounds))
                                                    activities:activities];
         _activityView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         _activityView.activityViewController = self;
         [self.view addSubview:_activityView];
         
-        self.contentSizeForViewInPopover = CGSizeMake(320, self.height - 60);
+        self.contentSizeForViewInPopover = CGSizeMake(320, self.height);// - 60);
     }
     return self;
 }
@@ -128,7 +127,7 @@
 }
 
 - (NSInteger)height
-{   
+{
     if (_activities.count <= 3) return 214;
     if (_activities.count <= 6) return 317;
     return 417;
@@ -139,7 +138,7 @@
     [super viewDidLoad];
 }
 
-#pragma mark - 
+#pragma mark -
 #pragma mark Helpers
 
 - (void)performBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay

@@ -36,14 +36,14 @@
         _activities = activities;
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-            _backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, 417)];
-            _backgroundImageView.image = [UIImage imageNamed:@"OWActivityViewController.bundle/Background"];
-            _backgroundImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-            [self addSubview:_backgroundImageView];
+            
+            _backgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(frame) - 80.f, frame.size.width, 80.f)];
+            [_backgroundView setBackgroundColor:[[UIColor blackColor] colorWithAlphaComponent:0.7f]];
+            [self addSubview:_backgroundView];
         }
-    
         
-        _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 39, frame.size.width, self.frame.size.height - 104)];
+        
+        _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 8, frame.size.width, self.frame.size.height - 104)];
         _scrollView.showsHorizontalScrollIndicator = NO;
         _scrollView.showsVerticalScrollIndicator = NO;
         _scrollView.delegate = self;
@@ -62,11 +62,13 @@
                 row = 0;
                 page++;
             }
-
+            
             UIView *view = [self viewForActivity:activity
                                            index:index
                                                x:(20 + col*80 + col*20) + page * frame.size.width
-                                               y:row*80 + row*20];
+                                               y:0];
+            CGRect frame = view.frame;
+            frame.origin.y = CGRectGetHeight(_scrollView.frame) - CGRectGetHeight(view.frame);
             [_scrollView addSubview:view];
             index++;
         }
@@ -82,24 +84,13 @@
             _pageControl.hidden = YES;
             _scrollView.scrollEnabled = NO;
         }
-        
-        _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_cancelButton setBackgroundImage:[[UIImage imageNamed:@"OWActivityViewController.bundle/Button"] stretchableImageWithLeftCapWidth:22 topCapHeight:47] forState:UIControlStateNormal];
-        _cancelButton.frame = CGRectMake(22, 352, 276, 47);
-        [_cancelButton setTitle:NSLocalizedStringFromTable(@"button.cancel", @"OWActivityViewController", @"Cancel") forState:UIControlStateNormal];
-        [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [_cancelButton setTitleShadowColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.4] forState:UIControlStateNormal];
-        [_cancelButton.titleLabel setShadowOffset:CGSizeMake(0, -1)];
-        [_cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:19]];
-        [_cancelButton addTarget:self action:@selector(cancelButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:_cancelButton];
     }
     return self;
 }
 
 - (UIView *)viewForActivity:(OWActivity *)activity index:(NSInteger)index x:(NSInteger)x y:(NSInteger)y
 {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(x, y, 80, 80)];
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(x, y, 62, 62)];
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(10, 0, 59, 59);
@@ -118,22 +109,6 @@
     button.accessibilityLabel = activity.title;
     [view addSubview:button];
     
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 59, 80, 30)];
-    label.textAlignment = UITextAlignmentCenter;
-    label.backgroundColor = [UIColor clearColor];
-    label.textColor = [UIColor colorWithWhite:221.f/255.f alpha:1.f];
-    label.shadowColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.75];
-    label.shadowOffset = CGSizeMake(0, 1);
-    label.text = activity.title;
-    label.font = [UIFont fontWithName:@"HelveticaNeue" size:12.0];
-    label.numberOfLines = 0;
-    [label setNumberOfLines:0];
-    [label sizeToFit];
-    CGRect frame = label.frame;
-    frame.origin.x = round((view.frame.size.width - frame.size.width) / 2.0f);
-    label.frame = frame;
-    [view addSubview:label];
-    
     return view;
 }
 
@@ -141,10 +116,9 @@
 {
     [super layoutSubviews];
     
-    CGRect frame = _cancelButton.frame;
-    frame.origin.y = self.frame.size.height - 47 - 16;
-    frame.origin.x = (self.frame.size.width - frame.size.width) / 2.0f;
-    _cancelButton.frame = frame;
+    CGRect frame = _scrollView.frame;
+    frame.origin.y = self.frame.size.height - 67;
+    _scrollView.frame = frame;
 }
 
 #pragma mark -
