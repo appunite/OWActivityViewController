@@ -26,6 +26,20 @@
 #import "OWActivityView.h"
 #import "OWActivityViewController.h"
 
+
+@implementation OWActivityItemView
+
+- (void)setLabel:(UILabel *)label {
+    if (_label) {
+        [_label removeFromSuperview];
+    }
+    _label = label;
+    [self addSubview:label];
+}
+
+@end
+
+
 @implementation OWActivityView
 
 - (id)initWithFrame:(CGRect)frame activities:(NSArray *)activities
@@ -41,6 +55,8 @@
             [_backgroundView setBackgroundColor:[[UIColor blackColor] colorWithAlphaComponent:0.8f]];
             [self addSubview:_backgroundView];
         }
+        
+        _activityViews = [[NSMutableArray alloc] initWithCapacity:activities.count];
         
         _itemsPerRow = 3;
         _rowsPerPage = 3;
@@ -70,6 +86,7 @@
     NSInteger page = -1;
     
     [_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    _activityViews = [[NSMutableArray alloc] initWithCapacity:_activities.count];
     for (OWActivity *activity in _activities) {
         NSInteger col;
         
@@ -82,8 +99,11 @@
         
         UIView *view = [self viewForActivity:activity
                                        index:index
-                                           x:(20 + col*80 + col*20) + page * frame.size.width
-                                           y:row*80 + row*20];
+                                         row:row
+                                         col:col
+                                        page:page];
+        
+        [_activityViews addObject:view];
         CGRect frame = view.frame;
         frame.origin.y = CGRectGetHeight(_scrollView.frame) - CGRectGetHeight(view.frame);
         [_scrollView addSubview:view];
@@ -103,12 +123,23 @@
         _scrollView.scrollEnabled = NO;
     }
     
+    _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_cancelButton setBackgroundImage:[[UIImage imageNamed:@"OWActivityViewController.bundle/Button"] stretchableImageWithLeftCapWidth:22 topCapHeight:47] forState:UIControlStateNormal];
+    _cancelButton.frame = CGRectMake(22, 372, 276, 47);
+    [_cancelButton setTitle:NSLocalizedStringFromTable(@"button.cancel", @"OWActivityViewController", @"Cancel") forState:UIControlStateNormal];
+    [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [_cancelButton setTitleShadowColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.4] forState:UIControlStateNormal];
+    [_cancelButton.titleLabel setShadowOffset:CGSizeMake(0, -1)];
+    [_cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:19]];
+    [_cancelButton addTarget:self action:@selector(cancelButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_cancelButton];
+    
 }
 
 
-- (UIView *)viewForActivity:(OWActivity *)activity index:(NSInteger)index x:(NSInteger)x y:(NSInteger)y
+- (OWActivityItemView *)viewForActivity:(OWActivity *)activity index:(NSInteger)index row:(NSInteger)row col:(NSInteger)col page:(NSInteger)page
 {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(x, y, 62, 62)];
+    OWActivityItemView *view = [[OWActivityItemView alloc] initWithFrame:[self rectForActivityViewAtIndex:index row:row col:col page:page]];//CGRectMake(x, y, 62, 62)];
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(10, 0, 59, 59);
@@ -127,16 +158,94 @@
     button.accessibilityLabel = activity.title;
     [view addSubview:button];
     
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 63, 80, 30)];
+    label.textAlignment = UITextAlignmentCenter;
+    label.backgroundColor = [UIColor clearColor];
+    label.textColor = [UIColor colorWithWhite:221.f/255.f alpha:1.f];
+    label.shadowColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.75];
+    label.shadowOffset = CGSizeMake(0, 1);
+    label.text = activity.title;
+    label.font = [UIFont fontWithName:@"HelveticaNeue" size:12.0];
+    label.numberOfLines = 0;
+    [label setNumberOfLines:0];
+    [label sizeToFit];
+    CGRect frame = label.frame;
+    frame.origin.x = round((view.frame.size.width - frame.size.width) / 2.0f);
+    label.frame = frame;
+    [view setLabel:label];
+    [view.label setHidden:!_showLabels];
+    
     return view;
+}
+
+- (CGRect)rectForActivityViewAtIndex:(NSInteger)index row:(NSInteger)row col:(NSInteger)col page:(NSInteger)page {
+    NSInteger width = [self itemWidth];
+    NSInteger height = [self itemHeight];
+    CGFloat gridHeight = height + [self itemVSpacing];
+    return CGRectMake((20 + col*width + col*20) + page * CGRectGetWidth(self.frame), row*gridHeight, width, height);
+}
+
+- (CGFloat)itemWidth {
+    return 80.f;
+}
+
+- (CGFloat)itemHeight {
+    return _showLabels ? 75.f : 62.f;
+}
+
+- (CGFloat)itemVSpacing {
+    return 15.f;
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     
-    CGRect frame = _scrollView.frame;
-    frame.origin.y = self.frame.size.height - 67;
+    CGRect frame = _cancelButton.frame;
+    frame.origin.y = self.frame.size.height - 47;
+    frame.origin.x = (self.frame.size.width - frame.size.width) / 2.0f;
+    _cancelButton.frame = frame;
+    
+    CGFloat height = [self itemHeight];
+    CGFloat vSpace = [self itemVSpacing];
+    CGFloat gridHeight = height + vSpace;
+    
+    NSInteger index = 0;
+    NSInteger row = -1;
+    NSInteger page = -1;
+    NSInteger rowCount = 0;
+    
+    for (UIView *view in _activityViews) {
+        NSInteger col;
+        col = index%_itemsPerRow;
+        if (index % _itemsPerRow == 0) {
+            row++;
+        }
+        if (index % (_itemsPerRow*_rowsPerPage) == 0) {
+            row = 0;
+            page++;
+        }
+        
+        rowCount = MAX(row+1, rowCount);
+        [view setFrame:[self rectForActivityViewAtIndex:index row:row col:col page:page]];
+        index++;
+    }
+    
+    CGFloat cancelButtonOffset = 57.f;
+    
+    frame = _scrollView.frame;
+    frame.origin.y = self.frame.size.height - rowCount*gridHeight - cancelButtonOffset;
     _scrollView.frame = frame;
+    
+    frame = _backgroundView.frame;
+    frame.origin.y = self.frame.size.height - rowCount*gridHeight - 20.f - cancelButtonOffset;
+    frame.size.height = self.frame.size.height - frame.origin.y + cancelButtonOffset;
+    _backgroundView.frame = frame;
+    
+    frame = _pageControl.frame;
+    frame.origin.y = self.frame.size.height - rowCount*gridHeight - 10.f - frame.size.height/2.f - cancelButtonOffset;
+    _pageControl.frame = frame;
+    
 }
 
 #pragma mark -
@@ -196,6 +305,16 @@
     CGFloat pageWidth = _scrollView.contentSize.width /_pageControl.numberOfPages;
     CGFloat x = _pageControl.currentPage * pageWidth;
     [_scrollView scrollRectToVisible:CGRectMake(x, 0, pageWidth, _scrollView.frame.size.height) animated:YES];
+}
+
+#pragma mark properties
+
+- (void)setShowLabels:(BOOL)showLabels {
+    _showLabels = showLabels;
+    for (OWActivityItemView *view in _activityViews) {
+        [view.label setHidden:!_showLabels];
+    }
+    [self setNeedsLayout];
 }
 
 @end

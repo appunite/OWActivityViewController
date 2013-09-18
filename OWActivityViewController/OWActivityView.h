@@ -36,8 +36,18 @@
 
 @end
 
+
+@interface OWActivityItemView : UIView
+
+@property (nonatomic, strong) UILabel *label;
+
+@end
+
+
 @interface OWActivityView : UIView <UIScrollViewDelegate> {
     UIPageControl *_pageControl;
+    NSMutableArray *_activityViews;
+    NSMutableArray *_activityLabels;
 }
 
 @property (strong, nonatomic) UIView *backgroundView;
@@ -48,6 +58,7 @@
 @property (weak, nonatomic) id<OWActivityViewDelegate> delegate;
 @property (nonatomic, assign, readonly) NSInteger itemsPerRow;
 @property (nonatomic, assign, readonly) NSInteger rowsPerPage;
+@property (nonatomic, assign) BOOL showLabels;
 
 - (id)initWithFrame:(CGRect)frame activities:(NSArray *)activities;
 - (void)setPerPageRows:(NSInteger)rows columns:(NSInteger)columns;
