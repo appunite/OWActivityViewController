@@ -37,56 +37,74 @@
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
             
-            _backgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(frame) - 80.f, frame.size.width, 80.f)];
-            [_backgroundView setBackgroundColor:[[UIColor blackColor] colorWithAlphaComponent:0.7f]];
+            _backgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(frame) - 90.f, frame.size.width, 90.f)];
+            [_backgroundView setBackgroundColor:[[UIColor blackColor] colorWithAlphaComponent:0.8f]];
             [self addSubview:_backgroundView];
         }
         
+        _itemsPerRow = 3;
+        _rowsPerPage = 3;
         
-        _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 8, frame.size.width, self.frame.size.height - 104)];
-        _scrollView.showsHorizontalScrollIndicator = NO;
-        _scrollView.showsVerticalScrollIndicator = NO;
-        _scrollView.delegate = self;
-        _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [self addSubview:_scrollView];
-        
-        NSInteger index = 0;
-        NSInteger row = -1;
-        NSInteger page = -1;
-        for (OWActivity *activity in _activities) {
-            NSInteger col;
-            
-            col = index%3;
-            if (index % 3 == 0) row++;
-            if (index % 9 == 0) {
-                row = 0;
-                page++;
-            }
-            
-            UIView *view = [self viewForActivity:activity
-                                           index:index
-                                               x:(20 + col*80 + col*20) + page * frame.size.width
-                                               y:0];
-            CGRect frame = view.frame;
-            frame.origin.y = CGRectGetHeight(_scrollView.frame) - CGRectGetHeight(view.frame);
-            [_scrollView addSubview:view];
-            index++;
-        }
-        _scrollView.contentSize = CGSizeMake((page +1) * frame.size.width, _scrollView.frame.size.height);
-        _scrollView.pagingEnabled = YES;
-        
-        _pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, frame.size.height - 84, frame.size.width, 10)];
-        _pageControl.numberOfPages = page + 1;
-        [_pageControl addTarget:self action:@selector(pageControlValueChanged:) forControlEvents:UIControlEventValueChanged];
-        [self addSubview:_pageControl];
-        
-        if (_pageControl.numberOfPages <= 1) {
-            _pageControl.hidden = YES;
-            _scrollView.scrollEnabled = NO;
-        }
+        [self setPerPageRows:_rowsPerPage columns:_itemsPerRow];
     }
     return self;
 }
+
+
+- (void)setPerPageRows:(NSInteger)rows columns:(NSInteger)columns {
+    _itemsPerRow = columns;
+    _rowsPerPage = rows;
+    
+    // rebuilding views from scratch, TODO modify them instead
+    CGRect frame = self.frame;
+    [_scrollView removeFromSuperview];
+    _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 8, frame.size.width, self.frame.size.height - 104)];
+    _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.showsVerticalScrollIndicator = NO;
+    _scrollView.delegate = self;
+    _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self addSubview:_scrollView];
+    
+    NSInteger index = 0;
+    NSInteger row = -1;
+    NSInteger page = -1;
+    
+    [_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    for (OWActivity *activity in _activities) {
+        NSInteger col;
+        
+        col = index%_itemsPerRow;
+        if (index % _itemsPerRow == 0) row++;
+        if (index % (_itemsPerRow*_rowsPerPage) == 0) {
+            row = 0;
+            page++;
+        }
+        
+        UIView *view = [self viewForActivity:activity
+                                       index:index
+                                           x:(20 + col*80 + col*20) + page * frame.size.width
+                                           y:row*80 + row*20];
+        CGRect frame = view.frame;
+        frame.origin.y = CGRectGetHeight(_scrollView.frame) - CGRectGetHeight(view.frame);
+        [_scrollView addSubview:view];
+        index++;
+    }
+    _scrollView.contentSize = CGSizeMake((page +1) * frame.size.width, _scrollView.frame.size.height);
+    _scrollView.pagingEnabled = YES;
+    
+    [_pageControl removeFromSuperview];
+    _pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, frame.size.height - 84, frame.size.width, 10)];
+    _pageControl.numberOfPages = page + 1;
+    [_pageControl addTarget:self action:@selector(pageControlValueChanged:) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:_pageControl];
+    
+    if (_pageControl.numberOfPages <= 1) {
+        _pageControl.hidden = YES;
+        _scrollView.scrollEnabled = NO;
+    }
+    
+}
+
 
 - (UIView *)viewForActivity:(OWActivity *)activity index:(NSInteger)index x:(NSInteger)x y:(NSInteger)y
 {

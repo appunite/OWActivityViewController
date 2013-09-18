@@ -46,7 +46,10 @@
 @property (weak, nonatomic) OWActivityViewController *activityViewController;
 @property (strong, nonatomic) UIButton *cancelButton;
 @property (weak, nonatomic) id<OWActivityViewDelegate> delegate;
+@property (nonatomic, assign, readonly) NSInteger itemsPerRow;
+@property (nonatomic, assign, readonly) NSInteger rowsPerPage;
 
 - (id)initWithFrame:(CGRect)frame activities:(NSArray *)activities;
+- (void)setPerPageRows:(NSInteger)rows columns:(NSInteger)columns;
 
 @end
