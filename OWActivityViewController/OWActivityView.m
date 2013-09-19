@@ -26,6 +26,7 @@
 #import "OWActivityView.h"
 #import "OWActivityViewController.h"
 
+#import <QuartzCore/QuartzCore.h>
 
 @implementation OWActivityItemView
 
@@ -60,6 +61,17 @@
         
         _itemsPerRow = 3;
         _rowsPerPage = 3;
+        
+        _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_cancelButton setBackgroundImage:[[UIImage imageNamed:@"OWActivityViewController.bundle/Button"] stretchableImageWithLeftCapWidth:22 topCapHeight:47] forState:UIControlStateNormal];
+        [_cancelButton setTitle:NSLocalizedStringFromTable(@"button.cancel", @"OWActivityViewController", @"Cancel") forState:UIControlStateNormal];
+        [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_cancelButton setTitleShadowColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.4] forState:UIControlStateNormal];
+        [_cancelButton.titleLabel setShadowOffset:CGSizeMake(0, -1)];
+        [_cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:19]];
+        [_cancelButton addTarget:self action:@selector(cancelButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        
+        [self addSubview:_cancelButton];
         
         [self setPerPageRows:_rowsPerPage columns:_itemsPerRow];
     }
@@ -123,16 +135,9 @@
         _scrollView.scrollEnabled = NO;
     }
     
-    _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_cancelButton setBackgroundImage:[[UIImage imageNamed:@"OWActivityViewController.bundle/Button"] stretchableImageWithLeftCapWidth:22 topCapHeight:47] forState:UIControlStateNormal];
-    _cancelButton.frame = CGRectMake(22, 372, 276, 47);
-    [_cancelButton setTitle:NSLocalizedStringFromTable(@"button.cancel", @"OWActivityViewController", @"Cancel") forState:UIControlStateNormal];
-    [_cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_cancelButton setTitleShadowColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.4] forState:UIControlStateNormal];
-    [_cancelButton.titleLabel setShadowOffset:CGSizeMake(0, -1)];
-    [_cancelButton.titleLabel setFont:[UIFont boldSystemFontOfSize:19]];
-    [_cancelButton addTarget:self action:@selector(cancelButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:_cancelButton];
+    
+    
+    [self setNeedsLayout];
     
 }
 
@@ -201,11 +206,6 @@
 {
     [super layoutSubviews];
     
-    CGRect frame = _cancelButton.frame;
-    frame.origin.y = self.frame.size.height - 47;
-    frame.origin.x = (self.frame.size.width - frame.size.width) / 2.0f;
-    _cancelButton.frame = frame;
-    
     CGFloat height = [self itemHeight];
     CGFloat vSpace = [self itemVSpacing];
     CGFloat gridHeight = height + vSpace;
@@ -233,9 +233,11 @@
     
     CGFloat cancelButtonOffset = 57.f;
     
-    frame = _scrollView.frame;
+    CGRect frame = _scrollView.frame;
     frame.origin.y = self.frame.size.height - rowCount*gridHeight - cancelButtonOffset;
+    frame.size.height = rowCount*gridHeight;
     _scrollView.frame = frame;
+    _scrollView.contentSize = CGSizeMake((page +1) * frame.size.width, _scrollView.frame.size.height);
     
     frame = _backgroundView.frame;
     frame.origin.y = self.frame.size.height - rowCount*gridHeight - 20.f - cancelButtonOffset;
@@ -246,6 +248,8 @@
     frame.origin.y = self.frame.size.height - rowCount*gridHeight - 10.f - frame.size.height/2.f - cancelButtonOffset;
     _pageControl.frame = frame;
     
+    _cancelButton.frame = CGRectMake(22, CGRectGetMaxY(_scrollView.frame)+2, 276, 47);
+    [_cancelButton setHidden:NO];
 }
 
 #pragma mark -

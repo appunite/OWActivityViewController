@@ -48,6 +48,7 @@
     UIPageControl *_pageControl;
     NSMutableArray *_activityViews;
     NSMutableArray *_activityLabels;
+    NSInteger _userRowCount;
 }
 
 @property (strong, nonatomic) UIView *backgroundView;
